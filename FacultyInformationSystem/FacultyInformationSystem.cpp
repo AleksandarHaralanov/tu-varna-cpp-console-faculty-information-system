@@ -7,8 +7,8 @@ using namespace std;
 
 struct Student {
     string major, group, name, city;
-    int facultyNumber, birthYear;
-    double admissionScore;
+    int facultyNumber{}, birthYear{};
+    double admissionScore{};
 };
 
 static void writeToFile(Student students[], int size) {
@@ -24,10 +24,10 @@ static int readFromFile(Student students[], int maxSize) {
     if (!file.is_open()) return 0;
 
     file.seekg(0, ios::end);
-    long fileSize = file.tellg();
+    size_t fileSize = file.tellg();
     file.seekg(0, ios::beg);
 
-    int count = fileSize / sizeof(Student);
+    int count = static_cast<int>(fileSize / sizeof(Student));
     if (count > maxSize) count = maxSize;
 
     file.read(reinterpret_cast<char*>(students), sizeof(Student) * count);
