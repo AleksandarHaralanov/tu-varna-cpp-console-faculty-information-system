@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <limits>
 
 using namespace std;
@@ -11,28 +12,72 @@ struct Student {
     double admissionScore{};
 };
 
-static void writeToFile(Student students[], int size) {
+static void writeToFile(const vector<Student>& students) {
     ofstream file("students.bin", ios::binary);
     if (file.is_open()) {
-        file.write(reinterpret_cast<char*>(students), sizeof(Student) * size);
+        for (const auto& student : students) {
+            int length;
+
+            length = student.name.size();
+            file.write(reinterpret_cast<const char*>(&length), sizeof(length));
+            file.write(student.name.c_str(), length);
+
+            length = student.city.size();
+            file.write(reinterpret_cast<const char*>(&length), sizeof(length));
+            file.write(student.city.c_str(), length);
+
+            length = student.major.size();
+            file.write(reinterpret_cast<const char*>(&length), sizeof(length));
+            file.write(student.major.c_str(), length);
+
+            length = student.group.size();
+            file.write(reinterpret_cast<const char*>(&length), sizeof(length));
+            file.write(student.group.c_str(), length);
+
+            file.write(reinterpret_cast<const char*>(&student.facultyNumber), sizeof(student.facultyNumber));
+            file.write(reinterpret_cast<const char*>(&student.birthYear), sizeof(student.birthYear));
+            file.write(reinterpret_cast<const char*>(&student.admissionScore), sizeof(student.admissionScore));
+        }
         file.close();
     }
 }
 
-static int readFromFile(Student students[], int maxSize) {
+static int readFromFile(vector<Student>& students, int maxSize) {
     ifstream file("students.bin", ios::binary);
     if (!file.is_open()) return 0;
 
-    file.seekg(0, ios::end);
-    size_t fileSize = file.tellg();
-    file.seekg(0, ios::beg);
+    students.clear();
+    Student student;
+    int count = 0;
 
-    int count = static_cast<int>(fileSize / sizeof(Student));
-    if (count > maxSize) count = maxSize;
+    while (count < maxSize && file.peek() != EOF) {
+        int length = 0;
 
-    file.read(reinterpret_cast<char*>(students), sizeof(Student) * count);
+        file.read(reinterpret_cast<char*>(&length), sizeof(length));
+        student.name.resize(length);
+        file.read(&student.name[0], length);
+
+        file.read(reinterpret_cast<char*>(&length), sizeof(length));
+        student.city.resize(length);
+        file.read(&student.city[0], length);
+
+        file.read(reinterpret_cast<char*>(&length), sizeof(length));
+        student.major.resize(length);
+        file.read(&student.major[0], length);
+
+        file.read(reinterpret_cast<char*>(&length), sizeof(length));
+        student.group.resize(length);
+        file.read(&student.group[0], length);
+
+        file.read(reinterpret_cast<char*>(&student.facultyNumber), sizeof(student.facultyNumber));
+        file.read(reinterpret_cast<char*>(&student.birthYear), sizeof(student.birthYear));
+        file.read(reinterpret_cast<char*>(&student.admissionScore), sizeof(student.admissionScore));
+
+        students.push_back(student);
+        ++count;
+    }
+
     file.close();
-
     return count;
 }
 
@@ -40,30 +85,42 @@ static bool inputInteger(int& val) {
     if (!(cin >> val)) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << endl << "Invalid input! Please enter a number." << endl;
+        cout << "Invalid input! Please enter an integer." << endl;
         system("pause");
         return false;
     }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     return true;
 }
 
-static void addStudents(Student students[], int& count, int maxStudents) {
+static bool inputDouble(double& val) {
+    if (!(cin >> val)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid input! Please enter a decimal number." << endl;
+        system("pause");
+        return false;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    return true;
+}
+
+static void addStudents(vector<Student>& students, int maxStudents) {
     int n = 0;
 
     while (true) {
         system("cls");
         cout << "Faculty Information System" << endl << endl;
         cout << "How many students do you wish to add?" << endl;
-        printf("(%d out of %d slots left) > ", maxStudents - count, maxStudents);
+        printf("(%d out of %d slots left) > ", maxStudents - static_cast<int>(students.size()), maxStudents);
 
         if (inputInteger(n) && n >= 0) {
             if (n == 0) return;
-            else if (count + n <= maxStudents) {
-                cin.ignore();
+            else if (students.size() + n <= maxStudents) {
                 break;
             }
             else {
-                cout << endl << "You don't have enough slots to add this many students." << endl;
+                cout << "You don't have enough slots to add this many students." << endl;
                 system("pause");
                 continue;
             }
@@ -71,59 +128,76 @@ static void addStudents(Student students[], int& count, int maxStudents) {
     }
 
     for (int i = 0; i < n; i++) {
+        Student student;
+
         system("cls");
+        cout << "Faculty Information System" << endl << endl;
+        printf("Student %d Information\n\n", static_cast<int>(students.size()) + 1);
+
         cout << "Full name > ";
-        getline(cin, students[i].name);
+        getline(cin, student.name);
 
-        cout << endl << "City > ";
-        getline(cin, students[i].city);
+        cout << "City > ";
+        getline(cin, student.city);
 
-        cout << endl << "Birth year > ";
-        cin >> students[i].birthYear;
-        cin.ignore();
+        while (true) {
+            cout << "Birth year > ";
+            if (inputInteger(student.birthYear)) break;
+        }
 
-        cout << endl << "Admission score > ";
-        cin >> students[i].admissionScore;
-        cin.ignore();
+        while (true) {
+            cout << "Admission score > ";
+            if (inputDouble(student.admissionScore)) break;
+        }
 
-        cout << endl << "Faculty number > ";
-        cin >> students[i].facultyNumber;
-        cin.ignore();
+        while (true) {
+            cout << "Faculty number > ";
+            if (inputInteger(student.facultyNumber)) break;
+        }
 
-        cout << endl << "Major > ";
-        getline(cin, students[i].major);
+        cout << "Major > ";
+        getline(cin, student.major);
 
-        cout << endl << "Group > ";
-        getline(cin, students[i].group);
+        cout << "Group > ";
+        getline(cin, student.group);
 
-        count++;
+        students.push_back(student);
     }
 
     system("cls");
-    printf("Successfully added %d students. You now have %d slots out of a %d left.\n", n, maxStudents - count, maxStudents);
+    printf("Successfully added %d students. You now have %d slots out of %d left.\n",
+        n,
+        maxStudents - static_cast<int>(students.size()),
+        maxStudents);
     system("pause");
 }
 
 int main() {
     const int maxStudents = 150;
-    Student students[maxStudents] = {};
+    vector<Student> students;
     int count = readFromFile(students, maxStudents);
 
     int choice;
     while (true) {
         system("cls");
         cout << "Faculty Information System" << endl << endl;
-        cout << "1. Add students" << endl << endl;
+        cout << "1. Add students" << endl;
+        cout << "0. Exit" << endl << endl;
         cout << "> ";
 
         if (!inputInteger(choice)) continue;
 
         switch (choice) {
         case 1:
-            addStudents(students, count, maxStudents);
+            addStudents(students, maxStudents);
             break;
-        default:
+        case 0:
+            writeToFile(students);
             return 0;
+        default:
+            cout << endl << "Invalid input! Please enter an integer." << endl;
+            system("pause");
+            break;
         }
     }
 }
