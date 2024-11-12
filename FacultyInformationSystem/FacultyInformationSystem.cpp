@@ -18,19 +18,19 @@ static void writeToFile(const vector<Student>& students) {
         for (const auto& student : students) {
             int length;
 
-            length = student.name.size();
+            length = static_cast<int>(student.name.size());
             file.write(reinterpret_cast<const char*>(&length), sizeof(length));
             file.write(student.name.c_str(), length);
 
-            length = student.city.size();
+            length = static_cast<int>(student.city.size());
             file.write(reinterpret_cast<const char*>(&length), sizeof(length));
             file.write(student.city.c_str(), length);
 
-            length = student.major.size();
+            length = static_cast<int>(student.major.size());
             file.write(reinterpret_cast<const char*>(&length), sizeof(length));
             file.write(student.major.c_str(), length);
 
-            length = student.group.size();
+            length = static_cast<int>(student.group.size());
             file.write(reinterpret_cast<const char*>(&length), sizeof(length));
             file.write(student.group.c_str(), length);
 
@@ -116,9 +116,7 @@ static void addStudents(vector<Student>& students, int maxStudents) {
 
         if (inputInteger(n) && n >= 0) {
             if (n == 0) return;
-            else if (students.size() + n <= maxStudents) {
-                break;
-            }
+            else if (static_cast<int>(students.size()) + n <= maxStudents) break;
             else {
                 cout << "You don't have enough slots to add this many students." << endl;
                 system("pause");
@@ -165,10 +163,7 @@ static void addStudents(vector<Student>& students, int maxStudents) {
     }
 
     system("cls");
-    printf("Successfully added %d students. You now have %d slots out of %d left.\n",
-        n,
-        maxStudents - static_cast<int>(students.size()),
-        maxStudents);
+    printf("Successfully added %d students. You now have %d slots out of %d left.\n", n, maxStudents - static_cast<int>(students.size()), maxStudents);
     system("pause");
 }
 
