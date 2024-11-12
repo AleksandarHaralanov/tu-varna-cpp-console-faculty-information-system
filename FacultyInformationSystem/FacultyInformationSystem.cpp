@@ -1,10 +1,11 @@
 #include <iostream>
+#include <algorithm>
+#include <cstdlib>
 #include <fstream>
+#include <iomanip>
+#include <limits>
 #include <string>
 #include <vector>
-#include <limits>
-#include <iomanip>
-#include <cstdlib>
 
 using namespace std;
 
@@ -248,6 +249,7 @@ int main() {
         printHeader();
         cout << "1. Add students" << endl;
         cout << "2. View students" << endl;
+        cout << "3. Sort students by faculty number ascending";
         cout << "0. Exit" << endl << endl;
         cout << "> ";
 
@@ -286,6 +288,9 @@ int main() {
                     continue;
                 }
             } while (choice != 0);
+            break;
+        case 3:
+            sort(students.begin(), students.end(), [](const Student& a, const Student& b) { return a.facultyNumber < b.facultyNumber; });
             break;
         case 0:
             writeToFile(students);
