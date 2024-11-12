@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <limits>
+#include <iomanip>
+#include <cstdlib>
 
 using namespace std;
 
@@ -42,15 +44,14 @@ static void writeToFile(const vector<Student>& students) {
     }
 }
 
-static int readFromFile(vector<Student>& students, int maxSize) {
+static void readFromFile(vector<Student>& students, int maxSize) {
     ifstream file("students.bin", ios::binary);
-    if (!file.is_open()) return 0;
+    if (!file.is_open()) return;
 
     students.clear();
     Student student;
-    int count = 0;
 
-    while (count < maxSize && file.peek() != EOF) {
+    while (static_cast<int>(students.size()) < maxSize && file.peek() != EOF) {
         int length = 0;
 
         file.read(reinterpret_cast<char*>(&length), sizeof(length));
@@ -74,19 +75,26 @@ static int readFromFile(vector<Student>& students, int maxSize) {
         file.read(reinterpret_cast<char*>(&student.admissionScore), sizeof(student.admissionScore));
 
         students.push_back(student);
-        ++count;
     }
 
     file.close();
-    return count;
+}
+
+static void printHeader() {
+    system("cls");
+    cout << "--------------------------" << endl;
+    cout << "Faculty Information System" << endl;
+    cout << "--------------------------" << endl << endl;
 }
 
 static bool inputInteger(int& val) {
-    if (!(cin >> val)) {
+    cin >> val;
+    if (cin.fail() || cin.peek() != '\n') {
         cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Invalid input! Please enter an integer." << endl;
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Discard invalid input
+        cout << endl << "Invalid input! Please enter an integer." << endl;
         system("pause");
+        cout << endl;
         return false;
     }
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -97,8 +105,9 @@ static bool inputDouble(double& val) {
     if (!(cin >> val)) {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Invalid input! Please enter a decimal number." << endl;
+        cout << endl << "Invalid input! Please enter a decimal number." << endl;
         system("pause");
+        cout << endl;
         return false;
     }
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -109,8 +118,7 @@ static void addStudents(vector<Student>& students, int maxStudents) {
     int n = 0;
 
     while (true) {
-        system("cls");
-        cout << "Faculty Information System" << endl << endl;
+        printHeader();
         cout << "How many students do you wish to add?" << endl;
         printf("(%d out of %d slots left) > ", maxStudents - static_cast<int>(students.size()), maxStudents);
 
@@ -128,8 +136,7 @@ static void addStudents(vector<Student>& students, int maxStudents) {
     for (int i = 0; i < n; i++) {
         Student student;
 
-        system("cls");
-        cout << "Faculty Information System" << endl << endl;
+        printHeader();
         printf("Student %d Information\n\n", static_cast<int>(students.size()) + 1);
 
         cout << "Full name > ";
@@ -162,21 +169,118 @@ static void addStudents(vector<Student>& students, int maxStudents) {
         students.push_back(student);
     }
 
-    system("cls");
-    printf("Successfully added %d students. You now have %d slots out of %d left.\n", n, maxStudents - static_cast<int>(students.size()), maxStudents);
+    printHeader();
+    printf("Successfully added %d student(s). You now have %d slots out of %d left.\n", n, maxStudents - static_cast<int>(students.size()), maxStudents);
+    system("pause");
+}
+
+static void viewStudents(const vector<Student>& students) {
+    printHeader();
+
+    cout << "+" << string(111, '-') << "+" << endl;
+    cout << "|"
+        << left << setw(35) << "Name" << "|"
+        << left << setw(8) << "Major" << "|"
+        << left << setw(8) << "Group" << "|"
+        << left << setw(15) << "City" << "|"
+        << left << setw(13) << "Faculty No." << "|"
+        << left << setw(13) << "Birth Year" << "|"
+        << left << setw(13) << "Adm. Score" << "|" << endl;
+    cout << "+" << string(111, '-') << "+" << endl;
+
+    for (const auto& student : students) {
+        cout << "|"
+        << left << setw(35) << student.name << "|"
+        << left << setw(8) << student.major << "|"
+        << left << setw(8) << student.group << "|"
+        << left << setw(15) << student.city << "|"
+        << left << setw(13) << student.facultyNumber << "|"
+        << left << setw(13) << student.birthYear << "|"
+        << left << setw(13) << fixed << setprecision(2) << student.admissionScore
+        << "|" << endl;
+    }
+
+    cout << "+" << string(111, '-') << "+" << endl;
+    cout << endl;
+    system("pause");
+}
+
+static void viewStudentHighestScore(const vector<Student>& students) {
+    printHeader();
+
+    cout << "+" << string(111, '-') << "+" << endl;
+    cout << "|"
+        << left << setw(35) << "Name" << "|"
+        << left << setw(8) << "Major" << "|"
+        << left << setw(8) << "Group" << "|"
+        << left << setw(15) << "City" << "|"
+        << left << setw(13) << "Faculty No." << "|"
+        << left << setw(13) << "Birth Year" << "|"
+        << left << setw(13) << "Adm. Score" << "|" << endl;
+    cout << "+" << string(111, '-') << "+" << endl;
+
+    Student studentHighestScore;
+    for (const auto& student : students) {
+        if (student.admissionScore > studentHighestScore.admissionScore) studentHighestScore = student;
+    }
+
+    cout << "|"
+        << left << setw(35) << studentHighestScore.name << "|"
+        << left << setw(8) << studentHighestScore.major << "|"
+        << left << setw(8) << studentHighestScore.group << "|"
+        << left << setw(15) << studentHighestScore.city << "|"
+        << left << setw(13) << studentHighestScore.facultyNumber << "|"
+        << left << setw(13) << studentHighestScore.birthYear << "|"
+        << left << setw(13) << fixed << setprecision(2) << studentHighestScore.admissionScore
+        << "|" << endl;
+
+    cout << "+" << string(111, '-') << "+" << endl;
+    cout << endl;
+    system("pause");
+}
+
+static void viewStudentsVarna(const vector<Student>& students) {
+    printHeader();
+
+    cout << "+" << string(111, '-') << "+" << endl;
+    cout << "|"
+        << left << setw(35) << "Name" << "|"
+        << left << setw(8) << "Major" << "|"
+        << left << setw(8) << "Group" << "|"
+        << left << setw(15) << "City" << "|"
+        << left << setw(13) << "Faculty No." << "|"
+        << left << setw(13) << "Birth Year" << "|"
+        << left << setw(13) << "Adm. Score" << "|" << endl;
+    cout << "+" << string(111, '-') << "+" << endl;
+
+    for (const auto& student : students) {
+        if (student.city == "Varna")
+        cout << "|"
+            << left << setw(35) << student.name << "|"
+            << left << setw(8) << student.major << "|"
+            << left << setw(8) << student.group << "|"
+            << left << setw(15) << student.city << "|"
+            << left << setw(13) << student.facultyNumber << "|"
+            << left << setw(13) << student.birthYear << "|"
+            << left << setw(13) << fixed << setprecision(2) << student.admissionScore
+            << "|" << endl;
+    }
+
+    cout << "+" << string(111, '-') << "+" << endl;
+    cout << endl;
     system("pause");
 }
 
 int main() {
     const int maxStudents = 150;
     vector<Student> students;
-    int count = readFromFile(students, maxStudents);
+    readFromFile(students, maxStudents);
 
     int choice;
     while (true) {
-        system("cls");
-        cout << "Faculty Information System" << endl << endl;
+        printHeader();
         cout << "1. Add students" << endl;
+        cout << "2. View students" << endl;
         cout << "0. Exit" << endl << endl;
         cout << "> ";
 
@@ -185,6 +289,36 @@ int main() {
         switch (choice) {
         case 1:
             addStudents(students, maxStudents);
+            break;
+        case 2:
+            do {
+                printHeader();
+                cout << "1. View all students" << endl;
+                cout << "2. View student with highest admission score" << endl;
+                cout << "3. View all students from Varna city" << endl;
+                cout << "0. Go back" << endl << endl;
+                cout << "> ";
+
+                if (!inputInteger(choice)) continue;
+
+                switch (choice) {
+                case 1:
+                    viewStudents(students);
+                    break;
+                case 2:
+                    viewStudentHighestScore(students);
+                    break;
+                case 3:
+                    viewStudentsVarna(students);
+                    break;
+                case 0:
+                    break;
+                default:
+                    cout << endl << "Invalid input! Please enter an integer." << endl;
+                    system("pause");
+                    continue;
+                }
+            } while (choice != 0);
             break;
         case 0:
             writeToFile(students);
