@@ -117,7 +117,7 @@ static bool inputInteger(int& val) {
     cin >> val;
     if (cin.fail() || cin.peek() != '\n') {
         cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Discard invalid input
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         cout << endl << "Invalid input! Please enter an integer." << endl;
         system("pause");
         cout << endl;
