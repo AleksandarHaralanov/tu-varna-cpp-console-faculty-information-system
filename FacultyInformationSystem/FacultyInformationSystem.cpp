@@ -87,6 +87,31 @@ static void printHeader() {
     cout << "--------------------------" << endl << endl;
 }
 
+static void printTableHeader() {
+    cout << "+" << string(111, '-') << "+" << endl;
+    cout << "|"
+        << left << setw(35) << "Name" << "|"
+        << left << setw(8) << "Major" << "|"
+        << left << setw(8) << "Group" << "|"
+        << left << setw(15) << "City" << "|"
+        << left << setw(13) << "Faculty No." << "|"
+        << left << setw(13) << "Birth Year" << "|"
+        << left << setw(13) << "Adm. Score" << "|" << endl;
+    cout << "+" << string(111, '-') << "+" << endl;
+}
+
+static void printStudentInformation(Student student) {
+    cout << "|"
+        << left << setw(35) << student.name << "|"
+        << left << setw(8) << student.major << "|"
+        << left << setw(8) << student.group << "|"
+        << left << setw(15) << student.city << "|"
+        << left << setw(13) << student.facultyNumber << "|"
+        << left << setw(13) << student.birthYear << "|"
+        << left << setw(13) << fixed << setprecision(2) << student.admissionScore
+        << "|" << endl;
+}
+
 static bool inputInteger(int& val) {
     cin >> val;
     if (cin.fail() || cin.peek() != '\n') {
@@ -176,98 +201,40 @@ static void addStudents(vector<Student>& students, int maxStudents) {
 
 static void viewStudents(const vector<Student>& students) {
     printHeader();
-
-    cout << "+" << string(111, '-') << "+" << endl;
-    cout << "|"
-        << left << setw(35) << "Name" << "|"
-        << left << setw(8) << "Major" << "|"
-        << left << setw(8) << "Group" << "|"
-        << left << setw(15) << "City" << "|"
-        << left << setw(13) << "Faculty No." << "|"
-        << left << setw(13) << "Birth Year" << "|"
-        << left << setw(13) << "Adm. Score" << "|" << endl;
-    cout << "+" << string(111, '-') << "+" << endl;
+    printTableHeader();
 
     for (const auto& student : students) {
-        cout << "|"
-        << left << setw(35) << student.name << "|"
-        << left << setw(8) << student.major << "|"
-        << left << setw(8) << student.group << "|"
-        << left << setw(15) << student.city << "|"
-        << left << setw(13) << student.facultyNumber << "|"
-        << left << setw(13) << student.birthYear << "|"
-        << left << setw(13) << fixed << setprecision(2) << student.admissionScore
-        << "|" << endl;
+        printStudentInformation(student);
     }
 
-    cout << "+" << string(111, '-') << "+" << endl;
-    cout << endl;
+    cout << "+" << string(111, '-') << "+" << endl << endl;
     system("pause");
 }
 
 static void viewStudentHighestScore(const vector<Student>& students) {
     printHeader();
-
-    cout << "+" << string(111, '-') << "+" << endl;
-    cout << "|"
-        << left << setw(35) << "Name" << "|"
-        << left << setw(8) << "Major" << "|"
-        << left << setw(8) << "Group" << "|"
-        << left << setw(15) << "City" << "|"
-        << left << setw(13) << "Faculty No." << "|"
-        << left << setw(13) << "Birth Year" << "|"
-        << left << setw(13) << "Adm. Score" << "|" << endl;
-    cout << "+" << string(111, '-') << "+" << endl;
+    printTableHeader();
 
     Student studentHighestScore;
     for (const auto& student : students) {
         if (student.admissionScore > studentHighestScore.admissionScore) studentHighestScore = student;
     }
 
-    cout << "|"
-        << left << setw(35) << studentHighestScore.name << "|"
-        << left << setw(8) << studentHighestScore.major << "|"
-        << left << setw(8) << studentHighestScore.group << "|"
-        << left << setw(15) << studentHighestScore.city << "|"
-        << left << setw(13) << studentHighestScore.facultyNumber << "|"
-        << left << setw(13) << studentHighestScore.birthYear << "|"
-        << left << setw(13) << fixed << setprecision(2) << studentHighestScore.admissionScore
-        << "|" << endl;
+    printStudentInformation(studentHighestScore);
 
-    cout << "+" << string(111, '-') << "+" << endl;
-    cout << endl;
+    cout << "+" << string(111, '-') << "+" << endl << endl;
     system("pause");
 }
 
 static void viewStudentsVarna(const vector<Student>& students) {
     printHeader();
-
-    cout << "+" << string(111, '-') << "+" << endl;
-    cout << "|"
-        << left << setw(35) << "Name" << "|"
-        << left << setw(8) << "Major" << "|"
-        << left << setw(8) << "Group" << "|"
-        << left << setw(15) << "City" << "|"
-        << left << setw(13) << "Faculty No." << "|"
-        << left << setw(13) << "Birth Year" << "|"
-        << left << setw(13) << "Adm. Score" << "|" << endl;
-    cout << "+" << string(111, '-') << "+" << endl;
+    printTableHeader();
 
     for (const auto& student : students) {
-        if (student.city == "Varna")
-        cout << "|"
-            << left << setw(35) << student.name << "|"
-            << left << setw(8) << student.major << "|"
-            << left << setw(8) << student.group << "|"
-            << left << setw(15) << student.city << "|"
-            << left << setw(13) << student.facultyNumber << "|"
-            << left << setw(13) << student.birthYear << "|"
-            << left << setw(13) << fixed << setprecision(2) << student.admissionScore
-            << "|" << endl;
+        if (student.city == "Varna") printStudentInformation(student);
     }
 
-    cout << "+" << string(111, '-') << "+" << endl;
-    cout << endl;
+    cout << "+" << string(111, '-') << "+" << endl << endl;
     system("pause");
 }
 
