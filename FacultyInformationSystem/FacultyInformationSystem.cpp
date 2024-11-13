@@ -89,26 +89,31 @@ static void printHeader() {
 }
 
 static void printTableHeader() {
-    cout << "+" << string(111, '-') << "+" << endl;
+    cout << "+" << string(112, '-') << "+" << endl;
     cout << "|"
         << left << setw(35) << "Name" << "|"
+        << left << setw(15) << "City" << "|"
+        << left << setw(13) << "Birth Year" << "|"
         << left << setw(8) << "Major" << "|"
         << left << setw(8) << "Group" << "|"
-        << left << setw(15) << "City" << "|"
-        << left << setw(13) << "Faculty No." << "|"
-        << left << setw(13) << "Birth Year" << "|"
+        << left << setw(14) << "Faculty No." << "|"
         << left << setw(13) << "Adm. Score" << "|" << endl;
-    cout << "+" << string(111, '-') << "+" << endl;
+    cout << "+" << string(112, '-') << "+" << endl;
+}
+
+static void printTableEnd() {
+    cout << "+" << string(112, '-') << "+" << endl << endl;
+    system("pause");
 }
 
 static void printStudentInformation(Student student) {
     cout << "|"
         << left << setw(35) << student.name << "|"
+        << left << setw(15) << student.city << "|"
+        << left << setw(13) << student.birthYear << "|"
         << left << setw(8) << student.major << "|"
         << left << setw(8) << student.group << "|"
-        << left << setw(15) << student.city << "|"
-        << left << setw(13) << student.facultyNumber << "|"
-        << left << setw(13) << student.birthYear << "|"
+        << left << setw(14) << student.facultyNumber << "|"
         << left << setw(13) << fixed << setprecision(2) << student.admissionScore
         << "|" << endl;
 }
@@ -145,8 +150,9 @@ static void addStudents(vector<Student>& students, int maxStudents) {
 
     while (true) {
         printHeader();
+        printf("(%d out of %d slots left)\n\n", maxStudents - static_cast<int>(students.size()), maxStudents);
         cout << "How many students do you wish to add?" << endl;
-        printf("(%d out of %d slots left) > ", maxStudents - static_cast<int>(students.size()), maxStudents);
+        cout << "(Enter 0 to go back) > ";
 
         if (inputInteger(n) && n >= 0) {
             if (n == 0) return;
@@ -204,12 +210,10 @@ static void viewStudents(const vector<Student>& students) {
     printHeader();
     printTableHeader();
 
-    for (const auto& student : students) {
+    for (const auto& student : students)
         printStudentInformation(student);
-    }
 
-    cout << "+" << string(111, '-') << "+" << endl << endl;
-    system("pause");
+    printTableEnd();
 }
 
 static void viewStudentHighestScore(const vector<Student>& students) {
@@ -217,26 +221,46 @@ static void viewStudentHighestScore(const vector<Student>& students) {
     printTableHeader();
 
     Student studentHighestScore;
-    for (const auto& student : students) {
-        if (student.admissionScore > studentHighestScore.admissionScore) studentHighestScore = student;
-    }
+    for (const auto& student : students)
+        if (student.admissionScore > studentHighestScore.admissionScore)
+            studentHighestScore = student;
 
     printStudentInformation(studentHighestScore);
 
-    cout << "+" << string(111, '-') << "+" << endl << endl;
-    system("pause");
+    printTableEnd();
 }
 
 static void viewStudentsVarna(const vector<Student>& students) {
     printHeader();
     printTableHeader();
 
-    for (const auto& student : students) {
-        if (student.city == "Varna") printStudentInformation(student);
-    }
+    for (const auto& student : students)
+        if (student.city == "Varna")
+            printStudentInformation(student);
 
-    cout << "+" << string(111, '-') << "+" << endl << endl;
-    system("pause");
+    printTableEnd();
+}
+
+static void searchStudentsMajorGroup(const vector<Student>& students) {
+    printHeader();
+
+    string major, group;
+
+    cout << "Major > ";
+    getline(cin, major);
+
+    cout << "Group > ";
+    getline(cin, group);
+
+    printHeader();
+    printf("Searching for students in major '%s' and group '%s'\n\n", major.c_str(), group.c_str());
+    printTableHeader();
+
+    for (const auto& student : students)
+        if (student.major == major && student.group == group)
+            printStudentInformation(student);
+
+    printTableEnd();
 }
 
 int main() {
@@ -244,12 +268,13 @@ int main() {
     vector<Student> students;
     readFromFile(students, maxStudents);
 
-    int choice;
+    int choice = 0;
     while (true) {
         printHeader();
         cout << "1. Add students" << endl;
         cout << "2. View students" << endl;
-        cout << "3. Sort students by faculty number ascending";
+        cout << "3. Search students" << endl;
+        cout << "4. Sort students by faculty number ascending" << endl << endl;
         cout << "0. Exit" << endl << endl;
         cout << "> ";
 
@@ -264,7 +289,7 @@ int main() {
                 printHeader();
                 cout << "1. View all students" << endl;
                 cout << "2. View student with highest admission score" << endl;
-                cout << "3. View all students from Varna city" << endl;
+                cout << "3. View all students from Varna city" << endl << endl;
                 cout << "0. Go back" << endl << endl;
                 cout << "> ";
 
@@ -290,7 +315,35 @@ int main() {
             } while (choice != 0);
             break;
         case 3:
+            do {
+                printHeader();
+                cout << "1. Search students in given group by admission score descending" << endl;
+                cout << "2. Search students in given major and group" << endl << endl;
+                cout << "0. Go back" << endl << endl;
+                cout << "> ";
+
+                if (!inputInteger(choice)) continue;
+
+                switch (choice) {
+                case 1:
+                    // TODO
+                    break;
+                case 2:
+                    searchStudentsMajorGroup(students);
+                    break;
+                case 0:
+                    break;
+                default:
+                    cout << endl << "Invalid input! Please enter an integer." << endl;
+                    system("pause");
+                    continue;
+                }
+            } while (choice != 0);
+            break;
+        case 4:
             sort(students.begin(), students.end(), [](const Student& a, const Student& b) { return a.facultyNumber < b.facultyNumber; });
+            cout << endl << "Sort was successful!" << endl;
+            system("pause");
             break;
         case 0:
             writeToFile(students);
