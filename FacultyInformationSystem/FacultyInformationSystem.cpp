@@ -11,7 +11,7 @@ using namespace std;
 
 struct Student {
     string major, group, name, city;
-    int facultyNumber{}, birthYear{};
+    int facultyNumber{}, birthYear{}, grades[6]{0};
     double admissionScore{};
 };
 
@@ -241,7 +241,28 @@ static void viewStudentsVarna(const vector<Student>& students) {
     printTableEnd();
 }
 
-static void searchStudentsMajorGroup(const vector<Student>& students) {
+static void searchStudentsGivenGroupScoreDesc(const vector<Student>& students) {
+    printHeader();
+
+    string group;
+
+    cout << "Group > ";
+    getline(cin, group);
+
+    printHeader();
+    printf("Searching for students in group '%s' sorted by admission score descending\n\n", group.c_str());
+    printTableHeader();
+
+    vector<Student> sortedStudents = students;
+    sort(sortedStudents.begin(), sortedStudents.end(), [](const Student& a, const Student& b) { return a.admissionScore > b.admissionScore; });
+    for (const auto& student : students)
+        if (student.group == group)
+            printStudentInformation(student);
+
+    printTableEnd();
+}
+
+static void searchStudentsGivenMajorGroup(const vector<Student>& students) {
     printHeader();
 
     string major, group;
@@ -326,10 +347,10 @@ int main() {
 
                 switch (choice) {
                 case 1:
-                    // TODO
+                    searchStudentsGivenGroupScoreDesc(students);
                     break;
                 case 2:
-                    searchStudentsMajorGroup(students);
+                    searchStudentsGivenMajorGroup(students);
                     break;
                 case 0:
                     break;
