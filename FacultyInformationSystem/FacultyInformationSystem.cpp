@@ -11,7 +11,7 @@ using namespace std;
 
 struct Student {
     string major, group, name, city;
-    int facultyNumber{}, birthYear{}, grades[6]{0};
+    int facultyNumber{}, birthYear{}, grades[6]{};
     double admissionScore{};
 };
 
