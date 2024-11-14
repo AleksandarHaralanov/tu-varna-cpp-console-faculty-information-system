@@ -284,6 +284,12 @@ static void searchStudentsGivenMajorGroup(const vector<Student>& students) {
     printTableEnd();
 }
 
+static void studentGradeEntry(const vector<Student>& students) {
+    printHeader();
+
+
+}
+
 int main() {
     const int maxStudents = 150;
     vector<Student> students;
