@@ -486,9 +486,9 @@ int main() {
             system("pause");
             break;
         case 0:
+            writeToFile(students, studentCount);
             printHeader();
             cout << "Saved and backed up all student data to a binary file in program directory. See 'students.bin' for reference." << endl;
-            writeToFile(students, studentCount);
             return 0;
         default:
             cout << endl << "Invalid input! Please enter a valid option." << endl;
