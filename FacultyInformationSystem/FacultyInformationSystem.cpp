@@ -16,7 +16,7 @@ struct Student {
 };
 
 static void writeToFile(const Student students[], int studentCount) {
-    ofstream file("students.bin", ios::binary);
+    ofstream file("..\\students.bin", ios::binary);
     if (file.is_open()) {
         for (int i = 0; i < studentCount; i++) {
             const Student& student = students[i];
@@ -47,7 +47,7 @@ static void writeToFile(const Student students[], int studentCount) {
 }
 
 static void readFromFile(Student students[], int& studentCount, int maxSize) {
-    ifstream file("students.bin", ios::binary);
+    ifstream file("..\\students.bin", ios::binary);
     if (!file.is_open()) {
         studentCount = 0;
         return;
