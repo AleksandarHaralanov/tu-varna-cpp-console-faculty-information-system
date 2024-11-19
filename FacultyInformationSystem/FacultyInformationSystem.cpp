@@ -481,11 +481,12 @@ int main() {
             break;
         case 5:
             sort(students, students + studentCount, [](const Student& a, const Student& b) { return a.facultyNumber < b.facultyNumber; });
-            cout << endl << "Sort was successful!" << endl;
+            printHeader();
+            cout << "Sorted all students by faculty number in ascending order." << endl << endl;
             system("pause");
             break;
         case 0:
-            system("cls");
+            printHeader();
             cout << "Saved and backed up all student data to a binary file in program directory. See 'students.bin' for reference." << endl;
             writeToFile(students, studentCount);
             return 0;
