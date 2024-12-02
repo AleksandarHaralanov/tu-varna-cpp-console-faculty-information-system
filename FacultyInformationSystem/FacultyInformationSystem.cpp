@@ -41,6 +41,8 @@ static void writeToFile(const Student students[], int studentCount) {
             file.write(reinterpret_cast<const char*>(&student.facultyNumber), sizeof(student.facultyNumber));
             file.write(reinterpret_cast<const char*>(&student.birthYear), sizeof(student.birthYear));
             file.write(reinterpret_cast<const char*>(&student.admissionScore), sizeof(student.admissionScore));
+
+            file.write(reinterpret_cast<const char*>(student.grades), sizeof(student.grades));
         }
         file.close();
     }
@@ -78,6 +80,8 @@ static void readFromFile(Student students[], int& studentCount, int maxSize) {
         file.read(reinterpret_cast<char*>(&student.birthYear), sizeof(student.birthYear));
         file.read(reinterpret_cast<char*>(&student.admissionScore), sizeof(student.admissionScore));
 
+        file.read(reinterpret_cast<char*>(student.grades), sizeof(student.grades));
+
         students[studentCount++] = student;
     }
 
@@ -92,7 +96,7 @@ static void printHeader() {
 }
 
 static void printTableHeader() {
-    cout << "+" << string(112, '-') << "+" << endl;
+    cout << "+" << string(125, '-') << "+" << endl;
     cout << "|"
         << left << setw(35) << "Name" << "|"
         << left << setw(15) << "City" << "|"
@@ -100,12 +104,13 @@ static void printTableHeader() {
         << left << setw(8) << "Major" << "|"
         << left << setw(8) << "Group" << "|"
         << left << setw(14) << "Faculty No." << "|"
-        << left << setw(13) << "Adm. Score" << "|" << endl;
-    cout << "+" << string(112, '-') << "+" << endl;
+        << left << setw(13) << "Adm. Score" << "|"
+        << left << setw(12) << "Grades" << "|" << endl;
+    cout << "+" << string(125, '-') << "+" << endl;
 }
 
 static void printTableEnd() {
-    cout << "+" << string(112, '-') << "+" << endl << endl;
+    cout << "+" << string(125, '-') << "+" << endl << endl;
     system("pause");
 }
 
@@ -117,12 +122,17 @@ static void printStudentInformation(const Student& student) {
         << left << setw(8) << student.major << "|"
         << left << setw(8) << student.group << "|"
         << left << setw(14) << student.facultyNumber << "|"
-        << left << setw(13) << fixed << setprecision(2) << student.admissionScore
-        << "|" << endl;
+        << left << setw(13) << fixed << setprecision(2) << student.admissionScore << "|";
+
+    for (int i = 0; i < 6; i++)
+        cout << right << setw(1) << student.grades[i];
+
+    cout << "      |" << endl;
 }
 
 static bool inputInteger(int& val) {
     cin >> val;
+
     if (cin.fail() || cin.peek() != '\n') {
         cin.clear();
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
@@ -131,12 +141,14 @@ static bool inputInteger(int& val) {
         cout << endl;
         return false;
     }
+
     if (val < 0) {
         cout << endl << "Invalid input! The number must be 0 or above." << endl;
         system("pause");
         cout << endl;
         return false;
     }
+
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     return true;
 }
@@ -150,19 +162,20 @@ static bool inputDouble(double& val) {
         cout << endl;
         return false;
     }
+
     if (val < 0.0) {
         cout << endl << "Invalid input! The number must be 0 or above." << endl;
         system("pause");
         cout << endl;
         return false;
     }
+
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     return true;
 }
 
 static void addStudents(Student students[], int& studentCount, int maxStudents) {
     int n;
-
     while (true) {
         printHeader();
         printf("(%d out of %d slots left)\n\n", maxStudents - studentCount, maxStudents);
@@ -211,13 +224,12 @@ static void addStudents(Student students[], int& studentCount, int maxStudents) 
                 }
 
                 bool duplicate = false;
-                for (int j = 0; j < studentCount; j++) {
+                for (int j = 0; j < studentCount; j++)
                     if (students[j].facultyNumber == student.facultyNumber) {
                         cout << endl << "This faculty number already exists. Please enter a unique faculty number." << endl << endl;
                         duplicate = true;
                         break;
                     }
-                }
 
                 if (!duplicate) break;
             }
@@ -241,8 +253,7 @@ static void viewStudents(const Student students[], int studentCount) {
     printHeader();
     printTableHeader();
 
-    for (int i = 0; i < studentCount; i++)
-        printStudentInformation(students[i]);
+    for (int i = 0; i < studentCount; i++) printStudentInformation(students[i]);
 
     printTableEnd();
 }
@@ -252,7 +263,7 @@ static void viewStudentHighestScore(const Student students[], int studentCount) 
     printTableHeader();
 
     if (studentCount == 0) {
-        cout << "| No students available." << setw(111) << " " << "|" << endl;
+        cout << "|No students available." << setw(103) << " " << "|" << endl;
     }
     else {
         Student studentHighestScore = students[0];
@@ -270,15 +281,14 @@ static void viewStudentsVarna(const Student students[], int studentCount) {
     printHeader();
     printTableHeader();
 
-    bool found = false;
+    bool isFound = false;
     for (int i = 0; i < studentCount; i++)
         if (students[i].city == "Varna") {
             printStudentInformation(students[i]);
-            found = true;
+            isFound = true;
         }
 
-    if (!found)
-        cout << "| No students from Varna found." << setw(97) << " " << "|" << endl;
+    if (!isFound) cout << "|No students from Varna found." << setw(96) << " " << "|" << endl;
 
     printTableEnd();
 }
@@ -287,37 +297,30 @@ static void searchStudentsGivenGroupScoreDesc(const Student students[], int stud
     printHeader();
 
     string group;
-
     cout << "Group > ";
     getline(cin, group);
 
     Student groupStudents[150];
     int groupStudentCount = 0;
 
-    for (int i = 0; i < studentCount; i++) {
-        if (students[i].group == group) {
+    for (int i = 0; i < studentCount; i++)
+        if (students[i].group == group)
             groupStudents[groupStudentCount++] = students[i];
-        }
-    }
-
-    if (groupStudentCount == 0) {
-        printHeader();
-        printf("No students found in group '%s'.\n\n", group.c_str());
-        system("pause");
-        return;
-    }
-
-    sort(groupStudents, groupStudents + groupStudentCount, [](const Student& a, const Student& b) {
-        return a.admissionScore > b.admissionScore;
-        });
 
     printHeader();
     printf("Students in group '%s' sorted by admission score descending\n\n", group.c_str());
     printTableHeader();
 
-    for (int i = 0; i < groupStudentCount; i++) {
-        printStudentInformation(groupStudents[i]);
+    if (groupStudentCount == 0) {
+        cout << "|No students found matching the criteria." << setw(85) << " " << "|" << endl;
+        printTableEnd();
+        return;
     }
+
+    sort(groupStudents, groupStudents + groupStudentCount, [](const Student& a, const Student& b) { return a.admissionScore > b.admissionScore; });
+
+    for (int i = 0; i < groupStudentCount; i++)
+        printStudentInformation(groupStudents[i]);
 
     printTableEnd();
 }
@@ -337,15 +340,14 @@ static void searchStudentsGivenMajorGroup(const Student students[], int studentC
     printf("Students in major '%s' and group '%s'\n\n", major.c_str(), group.c_str());
     printTableHeader();
 
-    bool found = false;
+    bool isFound = false;
     for (int i = 0; i < studentCount; i++)
         if (students[i].major == major && students[i].group == group) {
             printStudentInformation(students[i]);
-            found = true;
+            isFound = true;
         }
 
-    if (!found)
-        cout << "| No students found matching the criteria." << setw(85) << " " << "|" << endl;
+    if (!isFound) cout << "|No students found matching the criteria." << setw(85) << " " << "|" << endl;
 
     printTableEnd();
 }
@@ -354,7 +356,6 @@ static void studentGradeEntry(Student students[], int studentCount) {
     printHeader();
 
     int facultyNumber;
-
     while (true) {
         cout << "Faculty number > ";
         if (inputInteger(facultyNumber)) {
@@ -366,10 +367,10 @@ static void studentGradeEntry(Student students[], int studentCount) {
         }
     }
 
-    bool studentFound = false;
+    bool isFound = false;
     for (int i = 0; i < studentCount; i++) {
         if (students[i].facultyNumber != facultyNumber) continue;
-        studentFound = true;
+        isFound = true;
 
         printHeader();
         printf("Performing grade entries for %s with Fac. No %d\n\n", students[i].name.c_str(), students[i].facultyNumber);
@@ -390,10 +391,62 @@ static void studentGradeEntry(Student students[], int studentCount) {
         break;
     }
 
-    if (!studentFound) {
+    if (!isFound) {
         printf("\nCould not find a student with a Fac. No %d\n\n", facultyNumber);
         system("pause");
     }
+}
+
+static void checkScholarshipEligibility(const Student students[], int studentCount) {
+    printHeader();
+
+    int facultyNumber;
+    while (true) {
+        cout << "Faculty number > ";
+        if (inputInteger(facultyNumber)) {
+            if (to_string(facultyNumber).length() != 8) {
+                cout << endl << "Invalid input! Faculty numbers must be exactly 8 digits long." << endl << endl;
+                continue;
+            }
+            break;
+        }
+    }
+
+    Student student;
+    bool isYoung = true;
+    bool isPassing = true;
+    bool isFound = false;
+    double averageGrade = 0;
+    for (int i = 0; i < studentCount; ++i) {
+        if (students[i].facultyNumber != facultyNumber) continue;
+
+        student = students[i];
+        isFound = true;
+        isYoung = (2022 - students[i].birthYear) < 26;
+        for (int j = 0; j < 6; j++) {
+            if (students[i].grades[j] >= 3) {
+                averageGrade += students[i].grades[j];
+                continue;
+            }
+            isPassing = false;
+            break;
+        }
+        
+        if (isPassing) averageGrade /= 6;
+
+        break;
+    }
+
+    if (isFound) {
+        if (!isPassing) printf("\n%s is not eligible to apply for a scholarship due to failing or unpassed exams.\n(Grades: %d %d %d %d %d %d)\n\n",
+            student.name.c_str(), student.grades[0], student.grades[1], student.grades[2], student.grades[3], student.grades[4], student.grades[5]);
+        else if (!isYoung) printf("\n%s exceeds the age limit for eligibility.\nThey are %d years old right now. Requirement is to be under 26 years old.\n\n",
+            student.name.c_str(), 2022 - student.birthYear);
+        else printf("\n%s application score for the scholarship is '%.2f'.\n\n", student.name.c_str(), averageGrade);
+    }
+    else cout << endl << "Student with Fac. No '" << facultyNumber << "' not found." << endl << endl;
+
+    system("pause");
 }
 
 int main() {
@@ -410,7 +463,8 @@ int main() {
         cout << "2. View students" << endl;
         cout << "3. Search students" << endl;
         cout << "4. Perform student grade entries" << endl;
-        cout << "5. Sort students by faculty number ascending" << endl << endl;
+        cout << "5. Check scholarship eligibility" << endl;
+        cout << "6. Sort students by faculty number ascending" << endl << endl;
         cout << "0. Exit" << endl << endl;
         cout << "> ";
 
@@ -480,6 +534,9 @@ int main() {
             studentGradeEntry(students, studentCount);
             break;
         case 5:
+            checkScholarshipEligibility(students, studentCount);
+            break;
+        case 6:
             sort(students, students + studentCount, [](const Student& a, const Student& b) { return a.facultyNumber < b.facultyNumber; });
             printHeader();
             cout << "Sorted all students by faculty number in ascending order." << endl << endl;
