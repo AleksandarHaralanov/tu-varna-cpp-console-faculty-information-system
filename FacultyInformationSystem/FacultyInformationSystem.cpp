@@ -174,17 +174,17 @@ static bool inputDouble(double& val) {
     return true;
 }
 
-static void addStudents(Student students[], int& studentCount, int maxStudents) {
+static void addStudents(Student students[], int& studentCount, int MAX_STUDENTS) {
     int n;
     while (true) {
         printHeader();
-        printf("(%d out of %d slots left)\n\n", maxStudents - studentCount, maxStudents);
+        printf("(%d out of %d slots left)\n\n", MAX_STUDENTS - studentCount, MAX_STUDENTS);
         cout << "How many students do you wish to add?" << endl;
         cout << "(Enter 0 to go back) > ";
 
         if (inputInteger(n) && n >= 0) {
             if (n == 0) return;
-            else if (studentCount + n <= maxStudents) break;
+            else if (studentCount + n <= MAX_STUDENTS) break;
             else {
                 cout << "You don't have enough slots to add this many students." << endl;
                 system("pause");
@@ -245,7 +245,7 @@ static void addStudents(Student students[], int& studentCount, int maxStudents) 
     }
 
     printHeader();
-    printf("Successfully added %d student(s). You now have %d slots out of %d left.\n", n, maxStudents - studentCount, maxStudents);
+    printf("Successfully added %d student(s). You now have %d slots out of %d left.\n", n, MAX_STUDENTS - studentCount, MAX_STUDENTS);
     system("pause");
 }
 
@@ -450,11 +450,11 @@ static void checkScholarshipEligibility(const Student students[], int studentCou
 }
 
 int main() {
-    const int maxStudents = 150;
-    Student students[maxStudents];
+    const int MAX_STUDENTS = 150;
+    Student students[MAX_STUDENTS];
     int studentCount = 0;
 
-    readFromFile(students, studentCount, maxStudents);
+    readFromFile(students, studentCount, MAX_STUDENTS);
 
     int choice;
     while (true) {
@@ -472,7 +472,7 @@ int main() {
 
         switch (choice) {
         case 1:
-            addStudents(students, studentCount, maxStudents);
+            addStudents(students, studentCount, MAX_STUDENTS);
             break;
         case 2:
             do {
